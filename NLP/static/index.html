@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ASAG</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main>
+    <h1>🎓 Automated Short Answer Grading</h1>
+    <p class="subtitle">AI-powered grading - Scores: 0-3</p>
+    
+    <nav class="dashboard-nav">
+      <a href="/" class="nav-link active">Single Answer</a>
+      <a href="/teacher" class="nav-link">Batch Grading</a>
+    </nav>
+    
+    <section class="grading-form">
+      <h2>Grade an Answer</h2>
+      <form id="form">
+        <div class="form-group">
+          <label>Model Answer</label>
+          <textarea id="model" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Student Answer</label>
+          <textarea id="student" rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Grade</button>
+      </form>
+    </section>
+    
+    <div id="result"></div>
+  </main>
+  
+  <script>
+  document.getElementById('form').onsubmit = async function(e) {
+    e.preventDefault();
+    const result = document.getElementById('result');
+    result.innerHTML = 'Loading...';
+    
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          student_answer: document.getElementById('student').value,
+          model_answer: document.getElementById('model').value,
+          mode: 'both'
+        })
+      });
+      
+      const data = await response.json();
+      if (data.ok) {
+        const r = data.result;
+        const score = r.better_ensemble || 0;
+        result.innerHTML = '<div class="results-container"><h2>Score: ' + score + '/3</h2></div>';
+      } else {
+        result.innerHTML = 'Error: ' + data.error;
+      }
+    } catch(err) {
+      result.innerHTML = 'Failed: ' + err.message;
+    }
+  };
+  </script>
+</body>
+</html>

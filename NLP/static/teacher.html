@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher Dashboard - ASAG</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>🎓 Teacher Dashboard - Batch Grading System</h1>
+      <p class="subtitle">Upload student responses and get automated scores for the entire class</p>
+      
+      <nav class="dashboard-nav">
+        <a href="/" class="nav-link">Single Answer Grading</a>
+        <a href="/teacher" class="nav-link active">Batch Grading</a>
+      </nav>
+
+      <!-- Instructions Section -->
+      <section class="instructions">
+        <h2>📋 How to Use</h2>
+        <ol>
+          <li><strong>Prepare your files:</strong> 
+            <ul>
+              <li><strong>Option 1:</strong> Upload ONE combined file with all students (CSV/Excel with Name, Roll Number, Q1, Q2 columns)</li>
+              <li><strong>Option 2:</strong> Upload MULTIPLE individual files (one Google Form response per student) - They will be combined automatically!</li>
+            </ul>
+          </li>
+          <li><strong>Upload file(s):</strong> Drag & drop or browse to select your file(s)</li>
+          <li><strong>Set model answers:</strong> Enter the ideal answer for each detected question</li>
+          <li><strong>Grade:</strong> Click "Grade All Students" to process</li>
+          <li><strong>Download:</strong> Get individual score sheets + class summary</li>
+        </ol>
+      </section>
+
+      <!-- Upload Form -->
+      <section class="upload-section">
+        <h2>📤 Upload Student Responses</h2>
+        
+        <div class="file-upload-area" id="dropZone">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          <p><strong>Drop your file(s) here</strong> or click to browse</p>
+          <p class="file-hint">Supports CSV, Excel (.xlsx, .xls) - Max 16MB per file</p>
+          <p class="file-hint"><strong>✨ NEW:</strong> Select multiple files to combine automatically!</p>
+          <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" multiple style="display: none;" />
+        </div>
+        
+        <div id="fileInfo" class="file-info" style="display: none;">
+          <div id="fileList"></div>
+          <button type="button" id="removeFile" class="btn-small">Clear All</button>
+        </div>
+      </section>
+
+      <!-- Model Answers Section -->
+      <section class="model-answers-section" id="modelAnswersSection" style="display: none;">
+        <h2>📝 Enter Model Answers</h2>
+        <p>Detected <strong><span id="questionCount">0</span> questions</strong>. Enter the ideal answer for each:</p>
+        
+        <div id="modelAnswersContainer"></div>
+        
+        <button id="gradeButton" class="btn-primary" style="margin-top: 20px;">
+          <span class="btn-icon">🚀</span> Grade All Students
+        </button>
+      </section>
+
+      <!-- Progress Section -->
+      <section id="progressSection" style="display: none;">
+        <h2>⏳ Processing...</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <p id="progressText">Analyzing student responses...</p>
+      </section>
+
+      <!-- Results Section -->
+      <section id="resultsSection" style="display: none;">
+        <h2>✅ Grading Complete!</h2>
+        
+        <div class="results-summary">
+          <div class="stat-card">
+            <div class="stat-label">Students Graded</div>
+            <div class="stat-value" id="totalStudents">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Average Score</div>
+            <div class="stat-value" id="avgScore">0%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Files Generated</div>
+            <div class="stat-value" id="filesGenerated">0</div>
+          </div>
+        </div>
+
+        <div class="download-section">
+          <h3>📥 Download Results</h3>
+          <button id="downloadSummary" class="download-btn">
+            📊 Download Class Summary
+          </button>
+          <div id="individualDownloads"></div>
+        </div>
+
+        <!-- Model Performance Metrics -->
+        <div class="metrics-section" id="metricsSection" style="display: none;">
+          <h3>📊 Model Performance Metrics</h3>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Answers Graded</div>
+              <div class="metric-value" id="totalAnswers">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Average Score</div>
+              <div class="metric-value" id="metricAvgScore">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Std Deviation</div>
+              <div class="metric-value" id="metricStdDev">0</div>
+            </div>
+          </div>
+          <div class="score-distribution">
+            <h4>Score Distribution</h4>
+            <div id="scoreDistChart"></div>
+          </div>
+        </div>
+
+        <div class="student-results">
+          <h3>Student Results Preview</h3>
+          <div id="studentResultsTable"></div>
+        </div>
+      </section>
+
+      <!-- Sample File Section -->
+      <section class="sample-section">
+        <h2>💡 Need Help?</h2>
+        <div class="help-grid">
+          <div class="help-card">
+            <h3>Sample CSV Format</h3>
+            <pre>Name,Roll Number,Q1,Q2,Q3
+John Doe,101,Photosynthesis...,The water cycle...,DNA contains...
+Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
+            <a href="#" id="downloadSample" class="link-btn">Download Sample File</a>
+          </div>
+          <div class="help-card">
+            <h3>Google Forms Export</h3>
+            <p>1. Open your Google Form responses</p>
+            <p>2. Click the three dots (⋮)</p>
+            <p>3. Select "Download responses (.csv)"</p>
+            <p>4. Upload the downloaded file here</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+      const fileInfo = document.getElementById('fileInfo');
+      const fileName = document.getElementById('fileName');
+      const removeFile = document.getElementById('removeFile');
+      const modelAnswersSection = document.getElementById('modelAnswersSection');
+      const modelAnswersContainer = document.getElementById('modelAnswersContainer');
+      const questionCount = document.getElementById('questionCount');
+      const gradeButton = document.getElementById('gradeButton');
+      const progressSection = document.getElementById('progressSection');
+      const resultsSection = document.getElementById('resultsSection');
+      
+      let uploadedFile = null;
+      let detectedQuestions = [];
+
+      // File upload handling
+      dropZone.addEventListener('click', () => fileInput.click());
+      
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      });
+      
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+      });
+      
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+          handleFiles(e.dataTransfer.files);
+        }
+      });
+      
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          handleFiles(e.target.files);
+        }
+      });
+      
+      removeFile.addEventListener('click', () => {
+        uploadedFile = null;
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+        dropZone.style.display = 'flex';
+        modelAnswersSection.style.display = 'none';
+      });
+
+      function handleFiles(files) {
+        const filesArray = Array.from(files);
+        const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        
+        // Validate all files
+        for (let file of filesArray) {
+          if (!validTypes.includes(file.type) && !file.name.match(/\.(csv|xlsx|xls)$/)) {
+            alert(`Invalid file type: ${file.name}. Please upload CSV or Excel files only.`);
+            return;
+          }
+          
+          if (file.size > 16 * 1024 * 1024) {
+            alert(`File too large: ${file.name}. Maximum size is 16MB per file.`);
+            return;
+          }
+        }
+        
+        uploadedFile = filesArray; // Store as array
+        
+        // Display file list
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = filesArray.map(f => `<div class="file-item">📄 ${f.name}</div>`).join('');
+        
+        dropZone.style.display = 'none';
+        fileInfo.style.display = 'block';
+        
+        // Parse first file to detect questions (assume all have same structure)
+        parseFileForQuestions(filesArray[0]);
+      }
+
+      function parseFileForQuestions(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          const lines = text.split('\n');
+          if (lines.length > 0) {
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            
+            // Check if this is the new format (student_name, question_id, student_answer)
+            if (headers.includes('question_id') && headers.includes('student_answer')) {
+              // Parse question_id column to get unique questions
+              const questionIds = new Set();
+              for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                  const cols = lines[i].split(',');
+                  const qIdIndex = headers.indexOf('question_id');
+                  if (qIdIndex >= 0 && cols[qIdIndex]) {
+                    questionIds.add(cols[qIdIndex].trim().replace(/"/g, ''));
+                  }
+                }
+              }
+              detectedQuestions = Array.from(questionIds).sort();
+            } else {
+              // Old format: columns are Name, Roll Number, Q1, Q2, etc.
+              detectedQuestions = headers.filter(h => 
+                h && 
+                !h.toLowerCase().includes('name') && 
+                !h.toLowerCase().includes('roll') &&
+                !h.toLowerCase().includes('email') &&
+                !h.toLowerCase().includes('timestamp')
+              );
+            }
+            
+            if (detectedQuestions.length > 0) {
+              showModelAnswersForms();
+            } else {
+              alert('No question columns detected. Make sure your file has columns like Q1, Q2, etc.');
+            }
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function showModelAnswersForms() {
+        questionCount.textContent = detectedQuestions.length;
+        modelAnswersContainer.innerHTML = '';
+        
+        detectedQuestions.forEach((q, index) => {
+          const div = document.createElement('div');
+          div.className = 'model-answer-item';
+          div.innerHTML = `
+            <label><strong>${q}</strong></label>
+            <textarea 
+              id="model_${index}" 
+              rows="3" 
+              placeholder="Enter the ideal/model answer for this question..."
+              required
+            ></textarea>
+          `;
+          modelAnswersContainer.appendChild(div);
+        });
+        
+        modelAnswersSection.style.display = 'block';
+        modelAnswersSection.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      gradeButton.addEventListener('click', async () => {
+        // Collect model answers
+        const modelAnswers = {};
+        let allFilled = true;
+        
+        detectedQuestions.forEach((q, index) => {
+          const answer = document.getElementById(`model_${index}`).value.trim();
+          if (!answer) {
+            allFilled = false;
+          } else {
+            modelAnswers[q] = answer;
+          }
+        });
+        
+        if (!allFilled) {
+          alert('Please fill in all model answers');
+          return;
+        }
+        
+        if (!uploadedFile) {
+          alert('Please upload a file first');
+          return;
+        }
+        
+        // Show progress
+        modelAnswersSection.style.display = 'none';
+        progressSection.style.display = 'block';
+        progressSection.scrollIntoView({ behavior: 'smooth' });
+        
+        // Prepare form data
+        const formData = new FormData();
+        
+        // Handle both single file and multiple files
+        if (Array.isArray(uploadedFile)) {
+          // Multiple files
+          uploadedFile.forEach(file => {
+            formData.append('files[]', file);
+          });
+        } else {
+          // Single file (backward compatibility)
+          formData.append('file', uploadedFile);
+        }
+        
+        formData.append('model_answers', JSON.stringify(modelAnswers));
+        
+        try {
+          const response = await fetch('/batch-grade', {
+            method: 'POST',
+            body: formData
+          });
+          
+          const data = await response.json();
+          
+          if (data.ok) {
+            showResults(data);
+          } else {
+            alert('Error: ' + data.error);
+            progressSection.style.display = 'none';
+            modelAnswersSection.style.display = 'block';
+          }
+        } catch (error) {
+          alert('Failed to process: ' + error.message);
+          progressSection.style.display = 'none';
+          modelAnswersSection.style.display = 'block';
+        }
+      });
+
+      function showResults(data) {
+        progressSection.style.display = 'none';
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        
+        // Update statistics
+        document.getElementById('totalStudents').textContent = data.total_students || data.results.length;
+        
+        const avgPercentage = data.results.reduce((sum, r) => sum + r.percentage, 0) / data.results.length;
+        document.getElementById('avgScore').textContent = avgPercentage.toFixed(1) + '%';
+        document.getElementById('filesGenerated').textContent = data.individual_files.length + 1;
+        
+        // Display metrics if available
+        if (data.metrics) {
+          displayMetrics(data.metrics);
+        }
+        
+        // Summary download button
+        document.getElementById('downloadSummary').onclick = () => {
+          window.open(`/download/${data.summary_file}`, '_blank');
+        };
+        
+        // Individual downloads
+        const individualDiv = document.getElementById('individualDownloads');
+        individualDiv.innerHTML = '<h4>Individual Student Scoresheets</h4>';
+        data.individual_files.forEach((file, index) => {
+          const btn = document.createElement('button');
+          btn.className = 'download-btn-small';
+          btn.textContent = `📄 ${data.results[index].name} (${data.results[index].roll_number})`;
+          btn.onclick = () => window.open(`/download/${file}`, '_blank');
+          individualDiv.appendChild(btn);
+        });
+        
+        // Student results table
+        const tableDiv = document.getElementById('studentResultsTable');
+        let tableHTML = `
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Total Score</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        data.results.forEach(student => {
+          const grade = student.percentage >= 85 ? 'A' : 
+                       student.percentage >= 70 ? 'B' : 
+                       student.percentage >= 50 ? 'C' : 'D';
+          const gradeClass = grade === 'A' ? 'grade-a' : 
+                            grade === 'B' ? 'grade-b' : 
+                            grade === 'C' ? 'grade-c' : 'grade-d';
+          
+          tableHTML += `
+            <tr>
+              <td>${student.name}</td>
+              <td>${student.roll_number}</td>
+              <td>${student.total_score}/${student.max_possible}</td>
+              <td>${student.percentage.toFixed(1)}%</td>
+              <td><span class="grade-badge ${gradeClass}">${grade}</span></td>
+            </tr>
+          `;
+        });
+        
+        tableHTML += '</tbody></table>';
+        tableDiv.innerHTML = tableHTML;
+      }
+
+      function displayMetrics(metrics) {
+        const metricsSection = document.getElementById('metricsSection');
+        metricsSection.style.display = 'block';
+        
+        // Update metric values
+        document.getElementById('totalAnswers').textContent = metrics.total_answers_graded;
+        document.getElementById('metricAvgScore').textContent = metrics.average_score.toFixed(2);
+        document.getElementById('metricStdDev').textContent = metrics.std_deviation.toFixed(2);
+        
+        // Create score distribution chart
+        const chartDiv = document.getElementById('scoreDistChart');
+        const dist = metrics.score_distribution;
+        const pcts = metrics.score_percentages;
+        
+        chartDiv.innerHTML = `
+          <div class="chart-bars">
+            <div class="chart-bar">
+              <div class="bar-fill" style="height: ${pcts.score_0_pct}%; background: #e74c3c;"></div>
+              <div class="bar-label">Score 0<br>${dist.score_0} (${pcts.score_0_pct}%)</div>
+            </div>
+            <div class="chart-bar">
+              <div class="bar-fill" style="height: ${pcts.score_1_pct}%; background: #f39c12;"></div>
+              <div class="bar-label">Score 1<br>${dist.score_1} (${pcts.score_1_pct}%)</div>
+            </div>
+            <div class="chart-bar">
+              <div class="bar-fill" style="height: ${pcts.score_2_pct}%; background: #3498db;"></div>
+              <div class="bar-label">Score 2<br>${dist.score_2} (${pcts.score_2_pct}%)</div>
+            </div>
+            <div class="chart-bar">
+              <div class="bar-fill" style="height: ${pcts.score_3_pct}%; background: #2ecc71;"></div>
+              <div class="bar-label">Score 3<br>${dist.score_3} (${pcts.score_3_pct}%)</div>
+            </div>
+          </div>
+          <div class="metrics-info">
+            <p><strong>Category Distribution:</strong></p>
+            <p>Poor (0): ${metrics.category_distribution.Poor} answers</p>
+            <p>Fair (1-2): ${metrics.category_distribution.Fair} answers</p>
+            <p>Good (3): ${metrics.category_distribution.Good} answers</p>
+          </div>
+        `;
+      }
+
+      // Download sample file
+      document.getElementById('downloadSample').addEventListener('click', (e) => {
+        e.preventDefault();
+        const csvContent = `Name,Roll Number,Q1,Q2,Q3
+John Doe,101,Photosynthesis is the process by which plants convert sunlight into chemical energy.,The water cycle describes how water evaporates and condenses.,DNA contains genetic information.
+Jane Smith,102,Plants use sunlight to make food through photosynthesis.,Water evaporates from the surface into the atmosphere.,Genes are found in DNA molecules.
+Bob Johnson,103,Cells need sunlight for photosynthesis.,Rain falls from clouds.,DNA is genetic material.`;
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sample_student_responses.csv';
+        a.click();
+      });
+    </script>
+  </body>
+</html>
