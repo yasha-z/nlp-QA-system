@@ -66,12 +66,52 @@
       </section>
 
       <!-- Progress Section -->
-      <section id="progressSection" style="display: none;">
-        <h2>⏳ Processing...</h2>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
+      <section id="progressSection" class="progress-section" style="display: none;">
+        <div class="progress-header">
+          <div class="progress-icon-container">
+            <div class="progress-icon">🤖</div>
+            <div class="progress-pulse"></div>
+          </div>
+          <h2>AI is Analyzing Responses</h2>
+          <p class="progress-subtitle">Please wait while we grade your students' answers...</p>
         </div>
-        <p id="progressText">Analyzing student responses...</p>
+        
+        <div class="progress-steps">
+          <div class="progress-step" id="step1">
+            <div class="step-icon">📁</div>
+            <div class="step-label">Reading Files</div>
+            <div class="step-status">●</div>
+          </div>
+          <div class="progress-step" id="step2">
+            <div class="step-icon">🔍</div>
+            <div class="step-label">Analyzing Answers</div>
+            <div class="step-status">●</div>
+          </div>
+          <div class="progress-step" id="step3">
+            <div class="step-icon">⚡</div>
+            <div class="step-label">Calculating Scores</div>
+            <div class="step-status">●</div>
+          </div>
+          <div class="progress-step" id="step4">
+            <div class="step-icon">📊</div>
+            <div class="step-label">Generating Reports</div>
+            <div class="step-status">●</div>
+          </div>
+        </div>
+        
+        <div class="progress-bar-container">
+          <div class="progress-bar-animated" id="progressBar">
+            <div class="progress-shimmer"></div>
+          </div>
+          <div class="progress-percentage" id="progressPercentage">0%</div>
+        </div>
+        
+        <div class="processing-stats">
+          <div class="stat-item">
+            <span class="stat-icon">⏱️</span>
+            <span id="timeElapsed">0</span>s elapsed
+          </div>
+        </div>
       </section>
 
       <!-- Results Section -->
@@ -95,10 +135,21 @@
 
         <div class="download-section">
           <h3>📥 Download Results</h3>
-          <button id="downloadSummary" class="download-btn">
-            📊 Download Class Summary
-          </button>
-          <div id="individualDownloads"></div>
+          <div class="download-container">
+            <div class="download-primary">
+              <button id="downloadSummary" class="download-btn-primary">
+                <span class="download-icon">📊</span>
+                <div class="download-content">
+                  <div class="download-title">Class Summary Report</div>
+                  <div class="download-subtitle">Complete overview of all students</div>
+                </div>
+              </button>
+            </div>
+            <div class="download-secondary">
+              <h4>Individual Student Scoresheets</h4>
+              <div id="individualDownloads" class="individual-downloads-grid"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Model Performance Metrics -->
@@ -135,18 +186,38 @@
         <h2>💡 Need Help?</h2>
         <div class="help-grid">
           <div class="help-card">
+            <div class="help-icon">📄</div>
             <h3>Sample CSV Format</h3>
-            <pre>Name,Roll Number,Q1,Q2,Q3
-John Doe,101,Photosynthesis...,The water cycle...,DNA contains...
-Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
-            <a href="#" id="downloadSample" class="link-btn">Download Sample File</a>
+            <div class="csv-example">
+              <div class="csv-header">Name, Roll Number, Q1, Q2, Q3</div>
+              <div class="csv-row">John Doe, 101, Photosynthesis..., The water cycle..., DNA contains...</div>
+              <div class="csv-row">Jane Smith, 102, Plants make food..., Water evaporates..., Genes are...</div>
+            </div>
+            <a href="#" id="downloadSample" class="link-btn">
+              <span class="btn-icon">⬇️</span> Download Sample File
+            </a>
           </div>
           <div class="help-card">
+            <div class="help-icon">📋</div>
             <h3>Google Forms Export</h3>
-            <p>1. Open your Google Form responses</p>
-            <p>2. Click the three dots (⋮)</p>
-            <p>3. Select "Download responses (.csv)"</p>
-            <p>4. Upload the downloaded file here</p>
+            <ol class="export-steps">
+              <li>
+                <span class="step-number">1</span>
+                <span class="step-text">Open your Google Form responses</span>
+              </li>
+              <li>
+                <span class="step-number">2</span>
+                <span class="step-text">Click the three dots (⋮)</span>
+              </li>
+              <li>
+                <span class="step-number">3</span>
+                <span class="step-text">Select "Download responses (.csv)"</span>
+              </li>
+              <li>
+                <span class="step-number">4</span>
+                <span class="step-text">Upload the downloaded file here</span>
+              </li>
+            </ol>
           </div>
         </div>
       </section>
@@ -327,6 +398,9 @@ Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
         progressSection.style.display = 'block';
         progressSection.scrollIntoView({ behavior: 'smooth' });
         
+        // Animate progress
+        animateProgress();
+        
         // Prepare form data
         const formData = new FormData();
         
@@ -359,6 +433,7 @@ Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
             modelAnswersSection.style.display = 'block';
           }
         } catch (error) {
+          stopProgressAnimation();
           alert('Failed to process: ' + error.message);
           progressSection.style.display = 'none';
           modelAnswersSection.style.display = 'block';
@@ -366,9 +441,29 @@ Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
       });
 
       function showResults(data) {
-        progressSection.style.display = 'none';
-        resultsSection.style.display = 'block';
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        // Complete the progress animation
+        stopProgressAnimation();
+        
+        // Mark all steps as completed
+        ['step1', 'step2', 'step3', 'step4'].forEach(id => {
+          document.getElementById(id).classList.remove('active');
+          document.getElementById(id).classList.add('completed');
+        });
+        
+        // Set progress to 100%
+        document.querySelector('.progress-bar-animated').style.setProperty('--progress', '100%');
+        const bar = document.querySelector('.progress-bar-animated::before') || document.querySelector('.progress-bar-animated');
+        if (bar) {
+          bar.style.width = '100%';
+        }
+        document.getElementById('progressPercentage').textContent = '100%';
+        
+        // Wait a moment before showing results
+        setTimeout(() => {
+          progressSection.style.display = 'none';
+          resultsSection.style.display = 'block';
+          resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }, 1000);
         
         // Update statistics
         document.getElementById('totalStudents').textContent = data.total_students || data.results.length;
@@ -389,11 +484,11 @@ Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
         
         // Individual downloads
         const individualDiv = document.getElementById('individualDownloads');
-        individualDiv.innerHTML = '<h4>Individual Student Scoresheets</h4>';
+        individualDiv.innerHTML = '';
         data.individual_files.forEach((file, index) => {
           const btn = document.createElement('button');
           btn.className = 'download-btn-small';
-          btn.textContent = `📄 ${data.results[index].name} (${data.results[index].roll_number})`;
+          btn.innerHTML = `${data.results[index].name} <span style="opacity:0.7">(${data.results[index].roll_number})</span>`;
           btn.onclick = () => window.open(`/download/${file}`, '_blank');
           individualDiv.appendChild(btn);
         });
@@ -477,6 +572,63 @@ Jane Smith,102,Plants make food...,Water evaporates...,Genes are...</pre>
             <p>Good (3): ${metrics.category_distribution.Good} answers</p>
           </div>
         `;
+      }
+
+      function animateProgress() {
+        const steps = ['step1', 'step2', 'step3', 'step4'];
+        const progressBar = document.querySelector('.progress-bar-animated::before');
+        let currentStep = 0;
+        let progress = 0;
+        let startTime = Date.now();
+        
+        // Simulate step progression
+        const stepInterval = setInterval(() => {
+          if (currentStep < steps.length) {
+            // Mark previous step as completed
+            if (currentStep > 0) {
+              document.getElementById(steps[currentStep - 1]).classList.remove('active');
+              document.getElementById(steps[currentStep - 1]).classList.add('completed');
+            }
+            // Mark current step as active
+            document.getElementById(steps[currentStep]).classList.add('active');
+            currentStep++;
+          }
+        }, 2000);
+        
+        // Animate progress bar
+        const progressInterval = setInterval(() => {
+          if (progress < 95) {
+            progress += Math.random() * 10;
+            progress = Math.min(progress, 95);
+            document.querySelector('.progress-bar-animated').style.setProperty('--progress', progress + '%');
+            const bar = document.querySelector('.progress-bar-animated::before') || document.querySelector('.progress-bar-animated');
+            if (bar) {
+              bar.style.width = progress + '%';
+            }
+            document.getElementById('progressPercentage').textContent = Math.floor(progress) + '%';
+          }
+        }, 500);
+        
+        // Update elapsed time
+        const timeInterval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - startTime) / 1000);
+          document.getElementById('timeElapsed').textContent = elapsed;
+        }, 1000);
+        
+        // Store intervals for cleanup
+        window.progressIntervals = {
+          stepInterval,
+          progressInterval,
+          timeInterval
+        };
+      }
+      
+      function stopProgressAnimation() {
+        if (window.progressIntervals) {
+          clearInterval(window.progressIntervals.stepInterval);
+          clearInterval(window.progressIntervals.progressInterval);
+          clearInterval(window.progressIntervals.timeInterval);
+        }
       }
 
       // Download sample file
