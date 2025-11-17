@@ -121,11 +121,6 @@ nlp-QA-system/
    - `sbert_model.joblib`
    - `tfidf_vectorizer.joblib`
 
-   *If these files are not present, run the training scripts first:*
-   ```bash
-   python -m asag.train
-   python scripts/retrain_sbert.py
-
 ## Usage
 
 ### Starting the Application
