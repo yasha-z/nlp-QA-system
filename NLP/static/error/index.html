@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error Analysis Gallery</title>
+  <style>
+    body{font-family:Segoe UI, Roboto, sans-serif;background:linear-gradient(135deg,#eef2ff,#e0f2fe,#ecfdf5);min-height:100vh;margin:0;padding:32px}
+    .wrap{max-width:1280px;margin:0 auto}
+    h1{margin:0 0 10px;background:linear-gradient(135deg,#1e3a8a,#0f766e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900}
+    .subtitle{color:#475569;margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:24px}
+    .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:16px;border:1px solid #e2e8f0}
+    .card h2{margin:8px 8px 12px;color:#0f172a}
+    .imgbox{background:#f8fafc;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:auto;border:1px solid #e2e8f0}
+    .imgbox img{width:100%;height:auto}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    a.btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;text-decoration:none}
+    a.btn:hover{filter:brightness(1.06)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Error Analysis Gallery</h1>
+    <p class="subtitle">Ready-made visuals (SVG). Right-click to save, or use the download buttons.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Error Magnitude Breakdown</h2>
+        <div class="imgbox"><img alt="Error Breakdown" src="/error/error_breakdown.svg"/></div>
+        <div class="row">
+          <a class="btn" href="/error/error_breakdown.svg" download>Download SVG</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Misclassification Flow</h2>
+        <div class="imgbox"><img alt="Misclassification Flow" src="/error/misclassification_flow.svg"/></div>
+        <div class="row">
+          <a class="btn" href="/error/misclassification_flow.svg" download>Download SVG</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Per‑Class Precision & Recall</h2>
+        <div class="imgbox"><img alt="Per Class PR" src="/error/per_class_pr.svg"/></div>
+        <div class="row">
+          <a class="btn" href="/error/per_class_pr.svg" download>Download SVG</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

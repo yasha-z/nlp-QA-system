@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Confusion Matrix Gallery</title>
+  <style>
+    body{font-family:Segoe UI, Roboto, sans-serif;background:linear-gradient(135deg,#eef2ff,#e0f2fe,#ecfdf5);min-height:100vh;margin:0;padding:32px}
+    .wrap{max-width:1200px;margin:0 auto}
+    h1{margin:0 0 10px;background:linear-gradient(135deg,#1e3a8a,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900}
+    .subtitle{color:#475569;margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:24px}
+    .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:16px;border:1px solid #e2e8f0}
+    .card h2{margin:8px 8px 12px;color:#0f172a}
+    .imgbox{background:#f8fafc;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:auto;border:1px solid #e2e8f0}
+    .imgbox img{width:100%;height:auto}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    button,a.btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;text-decoration:none}
+    button:hover,a.btn:hover{filter:brightness(1.05)}
+    .note{color:#64748b;font-size:13px;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Confusion Matrix Gallery</h1>
+    <p class="subtitle">Ready-made confusion matrix visuals (TF‑IDF: 70% • SBERT: 72%). Click "Download PNG" to get a PNG copy.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>TF‑IDF (Accuracy 70%)</h2>
+        <div class="imgbox"><img id="img-tfidf" alt="TFIDF 70%" src="/confusion/tfidf_70.svg"/></div>
+        <div class="row">
+          <a class="btn" href="/confusion/tfidf_70.svg" download>Download SVG</a>
+          <button onclick="downloadPNG('img-tfidf','tfidf_70.png')">Download PNG</button>
+        </div>
+        <div class="note">SVG is vector quality; PNG exported at your screen resolution.</div>
+      </div>
+
+      <div class="card">
+        <h2>SBERT (Accuracy 72%)</h2>
+        <div class="imgbox"><img id="img-sbert" alt="SBERT 72%" src="/confusion/sbert_72.svg"/></div>
+        <div class="row">
+          <a class="btn" href="/confusion/sbert_72.svg" download>Download SVG</a>
+          <button onclick="downloadPNG('img-sbert','sbert_72.png')">Download PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function downloadPNG(imgId, filename){
+      const img = document.getElementById(imgId);
+      const resp = await fetch(img.src);
+      const svgText = await resp.text();
+      const svgBlob = new Blob([svgText], {type:'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+
+      const svgImage = new Image();
+      svgImage.onload = function(){
+        const scale = 2; // export scale for sharper PNG
+        const canvas = document.createElement('canvas');
+        const w = svgImage.width || 1100;
+        const h = svgImage.height || 820;
+        canvas.width = w*scale; canvas.height = h*scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(svgImage, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(function(blob){
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = filename; a.click();
+          URL.revokeObjectURL(a.href);
+        }, 'image/png');
+        URL.revokeObjectURL(url);
+      };
+      svgImage.src = url;
+    }
+  </script>
+</body>
+</html>

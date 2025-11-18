@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1300" height="780" viewBox="0 0 1300 780" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f0f9ff"/>
+      <stop offset="100%" stop-color="#fefce8"/>
+    </linearGradient>
+    <style>
+      .title{font:700 34px 'Segoe UI',sans-serif; fill:#0f172a}
+      .subtitle{font:600 16px 'Segoe UI',sans-serif; fill:#475569}
+      .axis{font:600 14px 'Segoe UI',sans-serif; fill:#334155}
+      .legend{font:600 14px 'Segoe UI',sans-serif; fill:#334155}
+      .val{font:700 12px 'Segoe UI',sans-serif; fill:#0f172a}
+      .cat{font:700 14px 'Segoe UI',sans-serif; fill:#0f172a}
+      .box{rx:12; ry:12}
+    </style>
+  </defs>
+  <rect width="1300" height="780" fill="url(#bg)"/>
+  <text class="title" x="650" y="60" text-anchor="middle">Per‑Class Precision & Recall</text>
+  <text class="subtitle" x="650" y="92" text-anchor="middle">TF‑IDF vs SBERT across score levels (0–3)</text>
+
+  <!-- Legend -->
+  <g transform="translate(940,110)">
+    <rect x="0" y="-18" width="320" height="60" fill="#ffffff" stroke="#e2e8f0" class="box"/>
+    <rect x="14" y="-6" width="18" height="18" fill="#3b82f6"/>
+    <text class="legend" x="40" y="8">TF‑IDF Precision</text>
+    <rect x="170" y="-6" width="18" height="18" fill="#60a5fa"/>
+    <text class="legend" x="196" y="8">TF‑IDF Recall</text>
+
+    <rect x="14" y="20" width="18" height="18" fill="#10b981"/>
+    <text class="legend" x="40" y="34">SBERT Precision</text>
+    <rect x="170" y="20" width="18" height="18" fill="#34d399"/>
+    <text class="legend" x="196" y="34">SBERT Recall</text>
+  </g>
+
+  <!-- Axes -->
+  <g transform="translate(120,160)">
+    <text class="axis" x="0" y="0">Score</text>
+    <text class="axis" x="0" y="520">0%</text>
+    <text class="axis" x="980" y="520" text-anchor="end">100%</text>
+
+    <!-- Category labels -->
+    <text class="cat" x="130" y="560" text-anchor="middle">0 (Poor)</text>
+    <text class="cat" x="370" y="560" text-anchor="middle">1 (Fair)</text>
+    <text class="cat" x="610" y="560" text-anchor="middle">2 (Good)</text>
+    <text class="cat" x="850" y="560" text-anchor="middle">3 (Excellent)</text>
+
+    <!-- Bars are 4 groups; each group has 4 thin bars -->
+    <!-- Helper function in comments: y = 520 - pct*5.0  (since 100% -> height 500) -->
+
+    <!-- Group 0 (Score 0) values: TF P=77, TF R=83, SB P=81, SB R=88 -->
+    <rect x="80" y="520-77*5" width="30" height="77*5" fill="#3b82f6"/>
+    <text class="val" x="95" y="520-77*5-6" text-anchor="middle">77%</text>
+    <rect x="115" y="520-83*5" width="30" height="83*5" fill="#60a5fa"/>
+    <text class="val" x="130" y="520-83*5-6" text-anchor="middle">83%</text>
+    <rect x="150" y="520-81*5" width="30" height="81*5" fill="#10b981"/>
+    <text class="val" x="165" y="520-81*5-6" text-anchor="middle">81%</text>
+    <rect x="185" y="520-88*5" width="30" height="88*5" fill="#34d399"/>
+    <text class="val" x="200" y="520-88*5-6" text-anchor="middle">88%</text>
+
+    <!-- Group 1 (Score 1) TF P=64, R=64; SB P=67, R=69 -->
+    <rect x="320" y="520-64*5" width="30" height="64*5" fill="#3b82f6"/>
+    <text class="val" x="335" y="520-64*5-6" text-anchor="middle">64%</text>
+    <rect x="355" y="520-64*5" width="30" height="64*5" fill="#60a5fa"/>
+    <text class="val" x="370" y="520-64*5-6" text-anchor="middle">64%</text>
+    <rect x="390" y="520-67*5" width="30" height="67*5" fill="#10b981"/>
+    <text class="val" x="405" y="520-67*5-6" text-anchor="middle">67%</text>
+    <rect x="425" y="520-69*5" width="30" height="69*5" fill="#34d399"/>
+    <text class="val" x="440" y="520-69*5-6" text-anchor="middle">69%</text>
+
+    <!-- Group 2 (Score 2) TF P=69, R=67; SB P=71, R=67 -->
+    <rect x="560" y="520-69*5" width="30" height="69*5" fill="#3b82f6"/>
+    <text class="val" x="575" y="520-69*5-6" text-anchor="middle">69%</text>
+    <rect x="595" y="520-67*5" width="30" height="67*5" fill="#60a5fa"/>
+    <text class="val" x="610" y="520-67*5-6" text-anchor="middle">67%</text>
+    <rect x="630" y="520-71*5" width="30" height="71*5" fill="#10b981"/>
+    <text class="val" x="645" y="520-71*5-6" text-anchor="middle">71%</text>
+    <rect x="665" y="520-67*5" width="30" height="67*5" fill="#34d399"/>
+    <text class="val" x="680" y="520-67*5-6" text-anchor="middle">67%</text>
+
+    <!-- Group 3 (Score 3) TF P=71, R=67; SB P=80, R=75 -->
+    <rect x="800" y="520-71*5" width="30" height="71*5" fill="#3b82f6"/>
+    <text class="val" x="815" y="520-71*5-6" text-anchor="middle">71%</text>
+    <rect x="835" y="520-67*5" width="30" height="67*5" fill="#60a5fa"/>
+    <text class="val" x="850" y="520-67*5-6" text-anchor="middle">67%</text>
+    <rect x="870" y="520-80*5" width="30" height="80*5" fill="#10b981"/>
+    <text class="val" x="885" y="520-80*5-6" text-anchor="middle">80%</text>
+    <rect x="905" y="520-75*5" width="30" height="75*5" fill="#34d399"/>
+    <text class="val" x="920" y="520-75*5-6" text-anchor="middle">75%</text>
+
+    <text class="subtitle" x="80" y="610">Observation: SBERT improves extremes (0 and 3) while mid-level performance is similar.</text>
+  </g>
+</svg>

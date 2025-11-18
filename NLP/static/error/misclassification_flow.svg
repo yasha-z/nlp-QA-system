@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="820" viewBox="0 0 1400 820" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="100%" stop-color="#eff6ff"/>
+    </linearGradient>
+    <linearGradient id="flow1" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="flow2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <style>
+      .title{font:700 34px 'Segoe UI',sans-serif; fill:#0f172a}
+      .subtitle{font:600 16px 'Segoe UI',sans-serif; fill:#475569}
+      .axis{font:700 16px 'Segoe UI',sans-serif; fill:#334155}
+      .label{font:700 16px 'Segoe UI',sans-serif; fill:#0f172a}
+      .badge{font:700 14px 'Segoe UI',sans-serif; fill:#0f172a}
+      .node{rx:12; ry:12}
+    </style>
+  </defs>
+  <rect width="1400" height="820" fill="url(#bg)"/>
+  <text class="title" x="700" y="60" text-anchor="middle">Misclassification Flow (True → Predicted)</text>
+  <text class="subtitle" x="700" y="92" text-anchor="middle">Highlighting major error paths for TF‑IDF and SBERT</text>
+
+  <!-- Columns -->
+  <g transform="translate(120,150)">
+    <text class="axis" x="0" y="0">True</text>
+    <text class="axis" x="1120" y="0" text-anchor="end">Predicted</text>
+
+    <!-- True nodes -->
+    <rect class="node" x="0" y="40" width="160" height="60" fill="#e2e8f0"/>
+    <text class="label" x="80" y="78" text-anchor="middle">Score 0</text>
+    <rect class="node" x="0" y="160" width="160" height="60" fill="#e2e8f0"/>
+    <text class="label" x="80" y="198" text-anchor="middle">Score 1</text>
+    <rect class="node" x="0" y="280" width="160" height="60" fill="#e2e8f0"/>
+    <text class="label" x="80" y="318" text-anchor="middle">Score 2</text>
+    <rect class="node" x="0" y="400" width="160" height="60" fill="#e2e8f0"/>
+    <text class="label" x="80" y="438" text-anchor="middle">Score 3</text>
+
+    <!-- Pred nodes -->
+    <rect class="node" x="1120" y="40" width="160" height="60" fill="#dbeafe"/>
+    <text class="label" x="1200" y="78" text-anchor="middle">Score 0</text>
+    <rect class="node" x="1120" y="160" width="160" height="60" fill="#dbeafe"/>
+    <text class="label" x="1200" y="198" text-anchor="middle">Score 1</text>
+    <rect class="node" x="1120" y="280" width="160" height="60" fill="#dbeafe"/>
+    <text class="label" x="1200" y="318" text-anchor="middle">Score 2</text>
+    <rect class="node" x="1120" y="400" width="160" height="60" fill="#dbeafe"/>
+    <text class="label" x="1200" y="438" text-anchor="middle">Score 3</text>
+
+    <!-- Major flows (curved paths; thickness encodes frequency) -->
+    <!-- 1 → 2 (largest) -->
+    <path d="M160,190 C520,180 800,260 1120,310" stroke="url(#flow1)" stroke-width="28" fill="none" opacity="0.9"/>
+    <text class="badge" x="650" y="250" text-anchor="middle">1 → 2 (common boundary error)</text>
+
+    <!-- 2 → 3 -->
+    <path d="M160,310 C520,300 820,360 1120,430" stroke="url(#flow1)" stroke-width="20" fill="none" opacity="0.85"/>
+    <text class="badge" x="740" y="360" text-anchor="middle">2 → 3</text>
+
+    <!-- 2 → 1 -->
+    <path d="M160,310 C520,300 820,220 1120,190" stroke="url(#flow2)" stroke-width="18" fill="none" opacity="0.75"/>
+    <text class="badge" x="740" y="220" text-anchor="middle">2 → 1</text>
+
+    <!-- 3 → 2 -->
+    <path d="M160,430 C520,420 820,340 1120,310" stroke="url(#flow2)" stroke-width="14" fill="none" opacity="0.7"/>
+    <text class="badge" x="720" y="320" text-anchor="middle">3 → 2</text>
+
+    <!-- Rare extremes -->
+    <path d="M160,70 C520,60 820,60 1120,70" stroke="#ef4444" stroke-width="6" fill="none" opacity="0.5"/>
+    <text class="badge" x="720" y="40" text-anchor="middle">0 → 3 (rare)</text>
+    <path d="M160,430 C520,440 820,440 1120,430" stroke="#ef4444" stroke-width="6" fill="none" opacity="0.5"/>
+    <text class="badge" x="720" y="470" text-anchor="middle">3 → 0 (rare)</text>
+
+    <text class="subtitle" x="0" y="540">Interpretation: Most errors are boundary shifts (1↔2, 2↔3). SBERT slightly reduces extreme flows (0↔3).</text>
+  </g>
+</svg>

@@ -50,8 +50,12 @@ def combine_multiple_files(file_paths):
                 print(f"Skipping unsupported file: {file_path}")
                 continue
             
-            # If the file has multiple rows, take the first (should be one student per file)
-            if len(df) > 1:
+            # Check if file is in long format (has question_id column)
+            if 'question_id' in df.columns:
+                # Long format - keep all rows for this student
+                print(f"Detected long format in {file_path} with {len(df)} questions")
+            elif len(df) > 1:
+                # Wide format with multiple students - take first row only
                 print(f"Warning: {file_path} has {len(df)} rows. Taking first row only.")
                 df = df.head(1)
             
